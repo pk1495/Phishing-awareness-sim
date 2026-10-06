@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>wic.gmail — Email</title>
+
+<script src="assets/js/theme.js"></script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+
+<div class="topbar">
+
+  <a class="brand" href="index.html">
+
+    <div class="brand-mark">
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="#fff"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <path d="M3 7l9 6 9-6"/>
+      </svg>
+    </div>
+
+    wic.gmail
+
+    <span class="brand-sub">
+      Training Mode
+    </span>
+
+  </a>
+
+  <div class="topbar-spacer"></div>
+
+  <div class="score-pill" id="score-pill">
+    Loading…
+  </div>
+
+  <a class="btn" href="index.html">
+    Back to Inbox
+  </a>
+
+  <a class="btn" href="results.html">
+    View Results
+  </a>
+
+</div>
+
+
+<div class="layout">
+
+  <div class="banner">
+
+    <b>This is a safe phishing-awareness training simulation.</b>
+
+    None of the emails below are real. Nothing you enter is transmitted
+    anywhere. Everything stays in your browser.
+
+    Inspect the sender, sender address, sender details, links,
+    urgency, and other details before deciding whether the message
+    is phishing or legitimate.
+
+  </div>
+
+
+  <div class="panel" id="email-panel">
+
+    <div class="empty-state">
+      Loading email…
+    </div>
+
+  </div>
+
+
+  <div class="footer-note">
+
+    Fictional training environment. Not affiliated with or representing
+    Gmail, RIT, or any other real organization.
+
+    <br>
+
+    Progress is stored only in this browser.
+
+  </div>
+
+</div>
+
+
+<div
+  class="link-tooltip"
+  id="link-tooltip"
+></div>
+
+
+<script src="assets/js/emails.js"></script>
+<script src="assets/js/app.js"></script>
+
+<script>
+
+/* ============================================================
+   Get email
+   ============================================================ */
+
+const scenarioId =
+  getQueryParam("id");
+
+const scenario =
+  findScenario(scenarioId);
+
+
+/* ============================================================
+   Score
+   ============================================================ */
+
+function updateEmailScore() {
+
+  const progress =
+    loadProgress();
+
+  const reviewed =
+    EMAIL_SCENARIOS.filter(
+      (item) =>
+        getRecord(progress, item.id).judged !== null
+    ).length;
+
+  const pill =
+    document.getElementById("score-pill");
+
+  if (!pill) {
+    return;
+  }
+
+  pill.innerHTML = `
+    <b>${reviewed}</b>
+    &nbsp;/&nbsp;
+    ${EMAIL_SCENARIOS.length} reviewed
+  `;
+}
+
+
+/* ============================================================
+   Sender details
+   ============================================================ */
+
+function toggleSenderDetails() {
+
+  const popup =
+    document.getElementById("sender-details");
+
+  const button =
+    document.getElementById("sender-details-button");
+
+  if (!popup || !button) {
+    return;
+  }
+
+  const isOpen =
+    popup.style.display === "block";
+
+  if (isOpen) {
+
+    popup.style.display = "none";
+
+    button.setAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    button.innerHTML = "▾";
+
+  } else {
+
+    popup.style.display = "block";
+
+    button.setAttribute(
+      "aria-expanded",
+      "true"
+    );
+
+    button.innerHTML = "▴";
+  }
+}
+
+
+/* ============================================================
+   Render error
+   ============================================================ */
+
+function renderError() {
+
+  const panel =
+    document.getElementById("email-panel");
+
+  panel.innerHTML = `
+
+    <div class="empty-state">
+
+      <h2>
+        Email not found
+      </h2>
+
+      <p>
+        This training email does not exist.
+      </p>
+
+      <br>
+
+      <a
+        class="btn btn-primary"
+        href="index.html"
+      >
+        Return to Inbox
+      </a>
+
+    </div>
+
+  `;
+}
+
+
+/* ============================================================
+   Render email
+   ============================================================ */
+
+function renderEmail() {
+
+  if (!scenario) {
+    renderError();
+    return;
+  }
+
+
+  const progress =
+    loadProgress();
+
+  const record =
+    getRecord(
+      progress,
+      scenario.id
+    );
+
+
+  setRecord(
+    progress,
+    scenario.id,
+    {
+      readAt:
+        record.readAt ||
+        new Date().toISOString()
+    }
+  );
+
+
+  const details =
+    scenario.senderDetails || {};
+
+
+  const panel =
+    document.getElementById(
+      "email-panel"
+    );
+
+
+  panel.innerHTML = `
+
+    <div class="detail-header">
+
+      <h1 class="detail-subject">
+
+        ${escapeHtml(
+          scenario.subject
+        )}
+
+      </h1>
+
+
+      <div class="detail-sender-row">
+
+        <div class="avatar">
+
+          ${escapeHtml(
+            scenario.avatarInitial || "?"
+          )}
+
+        </div>
+
+
+        <div
+          class="detail-sender-info"
+          style="position: relative;"
+        >
+
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              min-height: 24px;
+            "
+          >
+
+            <span class="detail-sender-name">
+
+              ${escapeHtml(
+                scenario.sender
+              )}
+
+            </span>
+
+
+            <span class="detail-sender-email">
+
+              ${escapeHtml(
+                scenario.senderEmail
+              )}
+
+            </span>
+
+
+            <!-- THIS IS THE ACTUAL BUTTON -->
+
+            <button
+              id="sender-details-button"
+              type="button"
+              onclick="toggleSenderDetails()"
+              aria-expanded="false"
+              aria-label="Show sender details"
+              title="Show sender details"
+              style="
+                appearance: none;
+                -webkit-appearance: none;
+                border: 0;
+                background: transparent;
+                color: var(--text-muted);
+                cursor: pointer;
+                font-size: 16px;
+                line-height: 20px;
+                width: 28px;
+                height: 28px;
+                padding: 0;
+                margin: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+              "
+            >▾</button>
+
+          </div>
+
+
+          <!-- SENDER DETAILS -->
+
+          <div
+            id="sender-details"
+            style="
+              display: none;
+              position: absolute;
+              z-index: 100;
+              top: 34px;
+              left: 0;
+              width: min(520px, calc(100vw - 60px));
+              background: var(--panel);
+              color: var(--text);
+              border: 1px solid var(--border);
+              border-radius: 12px;
+              box-shadow: var(--shadow);
+              padding: 18px;
+            "
+          >
+
+            <div
+              style="
+                font-size: 16px;
+                font-weight: 500;
+                margin-bottom: 14px;
+              "
+            >
+              Sender details
+            </div>
+
+
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 90px 1fr;
+                gap: 9px 12px;
+                font-size: 13px;
+                line-height: 1.4;
+              "
+            >
+
+              <div
+                style="
+                  color: var(--text-muted);
+                  font-weight: 500;
+                "
+              >
+                from:
+              </div>
+
+              <div>
+                ${escapeHtml(
+                  scenario.senderEmail
+                )}
+              </div>
+
+
+              <div
+                style="
+                  color: var(--text-muted);
+                  font-weight: 500;
+                "
+              >
+                to:
+              </div>
+
+              <div>
+                ${escapeHtml(
+                  details.to ||
+                  "Not available"
+                )}
+              </div>
+
+
+              <div
+                style="
+                  color: var(--text-muted);
+                  font-weight: 500;
+                "
+              >
+                reply-to:
+              </div>
+
+              <div>
+                ${escapeHtml(
+                  details.replyTo ||
+                  scenario.senderEmail ||
+                  "Not available"
+                )}
+              </div>
+
+
+              <div
+                style="
+                  color: var(--text-muted);
+                  font-weight: 500;
+                "
+              >
+                mailed-by:
+              </div>
+
+              <div>
+                ${escapeHtml(
+                  details.mailedBy ||
+                  "Not available"
+                )}
+              </div>
+
+
+              <div
+                style="
+                  color: var(--text-muted);
+                  font-weight: 500;
+                "
+              >
+                signed-by:
+              </div>
+
+              <div>
+                ${escapeHtml(
+                  details.signedBy ||
+                  "Not available"
+                )}
+              </div>
+
+            </div>
+
+
+            ${
+              details.warning
+                ? `
+
+                  <div
+                    style="
+                      margin-top: 16px;
+                      padding: 12px;
+                      background: var(--warn-bg);
+                      border: 1px solid var(--warn-border);
+                      border-radius: 8px;
+                      font-size: 13px;
+                      line-height: 1.5;
+                    "
+                  >
+
+                    <b>
+                      Training note:
+                    </b>
+
+                    <br>
+
+                    ${escapeHtml(
+                      details.warning
+                    )}
+
+                  </div>
+
+                `
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="detail-time">
+
+          ${escapeHtml(
+            scenario.time
+          )}
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="detail-body">
+
+      ${scenario.body}
+
+    </div>
+
+
+    <div class="judgment-box">
+
+      <div class="judgment-box-title">
+
+        What do you think?
+
+      </div>
+
+
+      <div class="judgment-buttons">
+
+        <button
+          type="button"
+          class="btn btn-danger"
+          id="phish-button"
+        >
+          ⚠ Report Phishing
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="legit-button"
+        >
+          ✓ Looks Legitimate
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div id="feedback-area"></div>
+
+
+    <div class="detail-actions">
+
+      <a
+        class="btn"
+        href="index.html"
+      >
+        ← Back to Inbox
+      </a>
+
+    </div>
+
+  `;
+
+
+  /* ==========================================================
+     Link behavior
+     ========================================================== */
+
+  attachLinkTooltip(
+    panel,
+    scenario
+  );
+
+
+  /* ==========================================================
+     Judgment buttons
+     ========================================================== */
+
+  document
+    .getElementById("phish-button")
+    .addEventListener(
+      "click",
+      function() {
+
+        judgeEmail(
+          scenario,
+          "phish"
+        );
+
+      }
+    );
+
+
+  document
+    .getElementById("legit-button")
+    .addEventListener(
+      "click",
+      function() {
+
+        judgeEmail(
+          scenario,
+          "legit"
+        );
+
+      }
+    );
+
+
+  /* ==========================================================
+     Existing result
+     ========================================================== */
+
+  if (record.judged) {
+
+    showFeedback(
+      scenario,
+      record.judged
+    );
+
+  }
+
+
+  updateEmailScore();
+}
+
+
+/* ============================================================
+   Judge
+   ============================================================ */
+
+function judgeEmail(
+  scenario,
+  judgment
+) {
+
+  const progress =
+    loadProgress();
+
+  const existing =
+    getRecord(
+      progress,
+      scenario.id
+    );
+
+
+  if (existing.judged !== null) {
+
+    showFeedback(
+      scenario,
+      existing.judged
+    );
+
+    return;
+  }
+
+
+  setRecord(
+    progress,
+    scenario.id,
+    {
+      judged: judgment,
+      readAt:
+        existing.readAt ||
+        new Date().toISOString()
+    }
+  );
+
+
+  showFeedback(
+    scenario,
+    judgment
+  );
+
+
+  updateEmailScore();
+}
+
+
+/* ============================================================
+   Feedback
+   ============================================================ */
+
+function showFeedback(
+  scenario,
+  judgment
+) {
+
+  const area =
+    document.getElementById(
+      "feedback-area"
+    );
+
+  if (!area) {
+    return;
+  }
+
+
+  const correct =
+    (
+      judgment === "phish" &&
+      scenario.isPhishing
+    ) ||
+    (
+      judgment === "legit" &&
+      !scenario.isPhishing
+    );
+
+
+  const type =
+    scenario.isPhishing
+      ? "phish"
+      : "legit";
+
+
+  const flags =
+    scenario.redFlags || [];
+
+
+  let flagsHtml = "";
+
+
+  if (flags.length > 0) {
+
+    flagsHtml = `
+
+      <div class="reveal-flags-title">
+        Warning signs to notice
+      </div>
+
+      <ul class="reveal-flags">
+
+        ${flags
+          .map(
+            (flag) => `
+              <li>
+                ${escapeHtml(flag)}
+              </li>
+            `
+          )
+          .join("")
+        }
+
+      </ul>
+
+    `;
+
+  }
+
+
+  area.innerHTML = `
+
+    <div class="reveal ${type}">
+
+      <div class="reveal-title">
+
+        ${correct ? "✓" : "!"}
+
+        ${correct ? "Correct" : "Not quite"}
+
+      </div>
+
+
+      <div class="reveal-text">
+
+        <b>
+          ${
+            scenario.isPhishing
+              ? "This email is phishing."
+              : "This email is legitimate."
+          }
+        </b>
+
+        <br><br>
+
+        ${escapeHtml(
+          scenario.explanation
+        )}
+
+      </div>
+
+
+      ${flagsHtml}
+
+    </div>
+
+  `;
+}
+
+
+/* ============================================================
+   Start
+   ============================================================ */
+
+if (scenario) {
+
+  renderEmail();
+
+} else {
+
+  renderError();
+
+  updateEmailScore();
+
+}
+
+</script>
+
+</body>
+</html>

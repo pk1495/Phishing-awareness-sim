@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>wic.gmail — Inbox</title>
+
+<script src="assets/js/theme.js"></script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+
+<div class="topbar">
+
+  <a class="brand" href="index.html">
+    <div class="brand-mark">
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="#fff"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <path d="M3 7l9 6 9-6"/>
+      </svg>
+    </div>
+
+    wic.gmail
+
+    <span class="brand-sub">
+      Training Mode
+    </span>
+  </a>
+
+  <div class="topbar-spacer"></div>
+
+  <div class="score-pill" id="score-pill">
+    Loading…
+  </div>
+
+  <a class="btn" href="results.html">
+    View Results
+  </a>
+
+</div>
+
+
+<div class="layout">
+
+  <div class="banner">
+
+    <b>This is a safe phishing-awareness training simulation.</b>
+
+    None of the emails below are real. Nothing you enter is transmitted
+    anywhere. Everything stays in your browser.
+
+    For each message, inspect the sender, sender address, links,
+    urgency, and other details before deciding whether it is
+    <b>phishing</b> or <b>legitimate</b>.
+
+  </div>
+
+
+  <div class="panel" id="inbox-list"></div>
+
+
+  <div class="footer-note">
+
+    Fictional training environment. Not affiliated with or representing
+    Gmail, RIT, or any other real organization.
+
+    <br>
+
+    Progress is stored only in this browser.
+
+    <a href="results.html">
+      View Results
+    </a>
+
+  </div>
+
+</div>
+
+
+<div class="link-tooltip" id="link-tooltip"></div>
+
+
+<script src="assets/js/emails.js"></script>
+<script src="assets/js/app.js"></script>
+
+<script>
+
+/* ============================================================
+   Inbox rendering
+   ============================================================ */
+
+function statusBadge(record, scenario) {
+
+  if (record.judged === null) {
+    return "";
+  }
+
+  const correct =
+    record.judged ===
+    (scenario.isPhishing ? "phish" : "legit");
+
+  return `
+    <span class="verdict-badge ${correct ? "correct" : "incorrect"}">
+      ${correct ? "Correct" : "Missed"}
+    </span>
+  `;
+}
+
+
+/* ============================================================
+   Inbox
+   ============================================================ */
+
+function renderInbox() {
+
+  const progress = loadProgress();
+
+  const list =
+    document.getElementById("inbox-list");
+
+  list.innerHTML = "";
+
+  allScenarios().forEach((scenario) => {
+
+    const record =
+      getRecord(progress, scenario.id);
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "email-row" +
+      (record.judged !== null ? " read" : "");
+
+    row.innerHTML = `
+
+      <div class="avatar">
+        ${escapeHtml(scenario.avatarInitial)}
+      </div>
+
+      <div class="email-row-main">
+
+        <div class="email-row-top">
+
+          <span
+            class="email-sender"
+            title="${escapeHtml(scenario.senderEmail)}"
+          >
+            ${escapeHtml(scenario.sender)}
+          </span>
+
+          <span class="email-time">
+            ${escapeHtml(scenario.time)}
+          </span>
+
+        </div>
+
+        <div class="email-subject">
+          ${escapeHtml(scenario.subject)}
+        </div>
+
+        <div class="email-preview">
+          ${escapeHtml(scenario.preview)}
+        </div>
+
+      </div>
+
+      ${statusBadge(record, scenario)}
+    `;
+
+    row.addEventListener("click", () => {
+
+      window.location.href =
+        `email.html?id=${encodeURIComponent(scenario.id)}`;
+
+    });
+
+    list.appendChild(row);
+  });
+
+  updateScorePill(progress);
+}
+
+
+/* ============================================================
+   Score
+   ============================================================ */
+
+function updateScorePill(progress) {
+
+  const total =
+    EMAIL_SCENARIOS.length;
+
+  const judgedCount =
+    EMAIL_SCENARIOS.filter(
+      (scenario) =>
+        getRecord(progress, scenario.id).judged !== null
+    ).length;
+
+  const pill =
+    document.getElementById("score-pill");
+
+  pill.innerHTML = `
+    <b>${judgedCount}</b>
+    &nbsp;/&nbsp;
+    ${total} reviewed
+  `;
+}
+
+
+renderInbox();
+
+</script>
+
+</body>
+</html>

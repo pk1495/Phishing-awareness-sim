@@ -1,0 +1,675 @@
+<!-- ============================================================
+     FILE: login.html
+     Phishing Awareness Simulator — Simulated Login Page
+
+     IMPORTANT:
+     This page is a SAFE TRAINING SIMULATION.
+     No credentials are transmitted or stored.
+     ============================================================ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sign in — Training Simulation</title>
+
+<script src="assets/js/theme.js"></script>
+<link rel="stylesheet" href="assets/css/styles.css">
+
+<style>
+/* ============================================================
+   RIT-STYLE TRAINING LOGIN
+   These styles ONLY affect the simulated login page.
+   The main inbox CSS remains unchanged.
+   ============================================================ */
+
+.login-wrap.rit-training {
+  max-width: 100%;
+  margin: 0;
+  padding: 36px 20px 60px;
+}
+
+.rit-training-banner {
+  max-width: 900px;
+  margin: 0 auto 24px;
+}
+
+.rit-login-shell {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.rit-login-card {
+  background: #ffffff;
+  border: 1px solid #d8d8d8;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.rit-login-header {
+  background: #f36c21;
+  color: #ffffff;
+  padding: 24px 30px;
+}
+
+.rit-login-header-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.rit-login-header-subtitle {
+  font-size: 13px;
+  margin-top: 5px;
+  opacity: 0.95;
+}
+
+.rit-login-content {
+  padding: 32px;
+}
+
+.rit-login-simulation-label {
+  display: inline-block;
+  background: #fff3e8;
+  color: #b84b08;
+  border: 1px solid #f3c39f;
+  border-radius: 4px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.rit-login-title {
+  margin: 0 0 8px;
+  font-size: 25px;
+  font-weight: 500;
+  color: #333;
+}
+
+.rit-login-description {
+  margin: 0 0 24px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rit-login-form {
+  margin-top: 8px;
+}
+
+.rit-field {
+  margin-bottom: 18px;
+}
+
+.rit-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.rit-field input {
+  width: 100%;
+  height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #bdbdbd;
+  border-radius: 3px;
+  background: #fff;
+  color: #222;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+}
+
+.rit-field input:focus {
+  outline: 2px solid rgba(243, 108, 33, 0.25);
+  border-color: #f36c21;
+}
+
+.rit-login-submit {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  border-radius: 3px;
+  background: #f36c21;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.rit-login-submit:hover {
+  background: #d9570e;
+}
+
+.rit-login-help {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+}
+
+.rit-login-help a {
+  color: #b84b08;
+  text-decoration: none;
+}
+
+.rit-login-help a:hover {
+  text-decoration: underline;
+}
+
+.rit-login-footer {
+  border-top: 1px solid #e5e5e5;
+  background: #fafafa;
+  padding: 15px 20px;
+  text-align: center;
+  color: #777;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.rit-real-destination {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 4px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.rit-real-destination-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 5px;
+}
+
+.rit-real-destination-url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: #444;
+  word-break: break-all;
+}
+
+/* ============================================================
+   SMALL SCREENS
+   ============================================================ */
+
+@media (max-width: 600px) {
+  .login-wrap.rit-training {
+    padding: 20px 12px 40px;
+  }
+
+  .rit-login-content {
+    padding: 24px 20px;
+  }
+
+  .rit-login-header {
+    padding: 20px;
+  }
+
+  .rit-login-title {
+    font-size: 22px;
+  }
+}
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+
+:root[data-theme="dark"] .rit-login-card {
+  background: #1b1b1d;
+  border-color: #3c4043;
+}
+
+:root[data-theme="dark"] .rit-login-content {
+  color: #e3e3e3;
+}
+
+:root[data-theme="dark"] .rit-login-title,
+:root[data-theme="dark"] .rit-field label {
+  color: #e3e3e3;
+}
+
+:root[data-theme="dark"] .rit-login-description,
+:root[data-theme="dark"] .rit-login-help {
+  color: #aaa;
+}
+
+:root[data-theme="dark"] .rit-field input {
+  background: #121214;
+  border-color: #555;
+  color: #eee;
+}
+
+:root[data-theme="dark"] .rit-login-footer {
+  background: #151517;
+  border-color: #3c4043;
+  color: #aaa;
+}
+
+:root[data-theme="dark"] .rit-real-destination {
+  background: #151517;
+  border-color: #3c4043;
+}
+
+:root[data-theme="dark"] .rit-real-destination-url {
+  color: #ccc;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- ============================================================
+     TOP BAR
+     ============================================================ -->
+
+<div class="topbar">
+
+  <a class="brand" href="index.html" style="text-decoration:none;">
+
+    <div class="brand-mark">
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="#fff"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <path d="M3 7l9 6 9-6"/>
+      </svg>
+    </div>
+
+    wic.gmail
+
+    <span class="brand-sub">
+      Training Mode
+    </span>
+
+  </a>
+
+  <div class="topbar-spacer"></div>
+
+  <a class="btn" href="index.html">
+    &larr; Back to Inbox
+  </a>
+
+</div>
+
+
+<!-- ============================================================
+     LOGIN SIMULATION
+     ============================================================ -->
+
+<div class="login-wrap rit-training">
+
+  <!-- Training warning -->
+  <div class="banner rit-training-banner">
+
+    <b>Simulation checkpoint:</b>
+    You just clicked a link from an email.
+
+    This page is a simulated training environment.
+    Nothing you type here is transmitted, saved, or sent anywhere.
+
+  </div>
+
+
+  <div class="rit-login-shell">
+
+    <div class="rit-login-card" id="login-card">
+
+      <!-- JavaScript fills this area -->
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+
+<script src="assets/js/emails.js"></script>
+<script src="assets/js/app.js"></script>
+
+<script>
+
+const id = getQueryParam("id");
+const scenario = findScenario(id);
+const card = document.getElementById("login-card");
+
+
+/* ============================================================
+   INVALID SCENARIO
+   ============================================================ */
+
+if (!scenario) {
+
+  card.innerHTML = `
+    <div class="empty-state">
+      Nothing to show.
+      <a href="index.html">Return to inbox</a>.
+    </div>
+  `;
+
+} else {
+
+  renderLogin();
+
+}
+
+
+/* ============================================================
+   RENDER LOGIN PAGE
+   ============================================================ */
+
+function renderLogin() {
+
+  /*
+   * RIT-specific scenarios get the RIT-style training page.
+   *
+   * Other phishing scenarios can still use the same generic
+   * simulation mechanism.
+   */
+
+  const isRitScenario = scenario.id === "rit-compromised-account";
+
+
+  if (isRitScenario) {
+
+    card.innerHTML = `
+
+      <!-- RIT-style simulated header -->
+
+      <div class="rit-login-header">
+
+        <div class="rit-login-header-title">
+          RIT Account Services
+        </div>
+
+        <div class="rit-login-header-subtitle">
+          Student account sign-in
+        </div>
+
+      </div>
+
+
+      <!-- Login content -->
+
+      <div class="rit-login-content">
+
+        <div class="rit-login-simulation-label">
+          Training Simulation
+        </div>
+
+        <h1 class="rit-login-title">
+          Sign in to your RIT account
+        </h1>
+
+        <p class="rit-login-description">
+          Sign in with your RIT username and password to continue.
+        </p>
+
+
+        <form id="login-form" class="rit-login-form">
+
+          <div class="rit-field">
+
+            <label for="email">
+              RIT email address
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              placeholder="username@rit.edu"
+              autocomplete="off"
+              required
+            >
+
+          </div>
+
+
+          <div class="rit-field">
+
+            <label for="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              type="password"
+              placeholder="Password"
+              autocomplete="off"
+              required
+            >
+
+          </div>
+
+
+          <button
+            type="submit"
+            class="rit-login-submit"
+          >
+            Sign In
+          </button>
+
+        </form>
+
+
+        <div class="rit-login-help">
+
+          Need help signing in?
+          <a href="#" onclick="return false;">
+            Contact RIT support
+          </a>
+
+        </div>
+
+
+        <!--
+          This is intentionally visible in training mode.
+          It lets the learner see where the email actually sent them.
+        -->
+
+        <div class="rit-real-destination">
+
+          <div class="rit-real-destination-label">
+            Link destination detected by the simulation
+          </div>
+
+          <div class="rit-real-destination-url">
+            ${escapeHtml(scenario.linkHref || "Unknown destination")}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="rit-login-footer">
+
+        This is a fictional phishing-awareness simulation.
+        No credentials are transmitted or stored.
+
+      </div>
+
+    `;
+
+  } else {
+
+    /*
+     * Generic simulated login for the other phishing scenarios.
+     */
+
+    card.innerHTML = `
+
+      <div class="login-brand">
+
+        <div class="brand-mark">
+
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="#fff"
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2"/>
+            <path d="M3 7l9 6 9-6"/>
+          </svg>
+
+        </div>
+
+        Account sign in
+
+      </div>
+
+
+      <div class="login-title">
+        Verify your identity to continue
+      </div>
+
+
+      <div class="login-sub">
+        Destination:
+        <span style="font-family:ui-monospace,monospace;">
+          ${escapeHtml(scenario.linkHref || "unknown")}
+        </span>
+      </div>
+
+
+      <form id="login-form">
+
+        <div class="field">
+
+          <label>
+            Email address
+          </label>
+
+          <input
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="off"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Password
+          </label>
+
+          <input
+            type="password"
+            placeholder="••••••••"
+            autocomplete="off"
+            required
+          >
+
+        </div>
+
+
+        <button
+          type="submit"
+          class="login-submit"
+        >
+          Sign In
+        </button>
+
+      </form>
+
+
+      <div class="sim-watermark">
+
+        This is a simulated phishing landing page for training
+        purposes only. No credentials are transmitted or stored.
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* ============================================================
+     FORM HANDLER
+     ============================================================ */
+
+  document
+    .getElementById("login-form")
+    .addEventListener("submit", function(e) {
+
+      e.preventDefault();
+
+      const progress = loadProgress();
+
+      setRecord(
+        progress,
+        scenario.id,
+        {
+          submittedCreds: true
+        }
+      );
+
+      /*
+       * Send the learner back to the email.
+       * The email page can then explain that the login was part
+       * of the simulated phishing attack.
+       */
+
+      window.location.href =
+        `email.html?id=${encodeURIComponent(scenario.id)}&caught=1`;
+
+    });
+
+}
+
+
+/* ============================================================
+   HTML ESCAPING
+   Prevents scenario text from being interpreted as HTML.
+   ============================================================ */
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+</script>
+
+</body>
+</html>

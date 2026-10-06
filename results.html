@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wic.gmail — Your Results</title>
+<script src="assets/js/theme.js"></script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html" style="text-decoration:none;">
+    <div class="brand-mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+    wic.gmail
+    <span class="brand-sub">Training Mode</span>
+  </a>
+  <div class="topbar-spacer"></div>
+  <a class="btn" href="index.html">&larr; Back to Inbox</a>
+  <button class="btn btn-danger" id="reset-btn">Reset Progress</button>
+</div>
+
+<div class="layout">
+
+  <div id="stats-area"></div>
+  <div class="panel" id="results-list" style="margin-top:18px;"></div>
+
+  <div class="footer-note">
+    Progress is stored only in this browser (localStorage) and is not sent anywhere.
+  </div>
+
+</div>
+
+<script src="assets/js/emails.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+function render() {
+  const progress = loadProgress();
+  const scenarios = allScenarios();
+  const judged = scenarios.filter((s) => getRecord(progress, s.id).judged !== null);
+
+  if (judged.length === 0) {
+    document.getElementById("stats-area").innerHTML = "";
+    document.getElementById("results-list").innerHTML = `
+      <div class="empty-state">
+        You haven't reviewed any emails yet.<br><br>
+        <a class="btn btn-primary" href="index.html">Go to Inbox</a>
+      </div>
+    `;
+    return;
+  }
+
+  let correctCount = 0;
+  let fellForPhish = 0;
+  let totalPhish = scenarios.filter((s) => s.isPhishing).length;
+
+  scenarios.forEach((s) => {
+    const r = getRecord(progress, s.id);
+    if (r.judged === null) return;
+    const correct = r.judged === (s.isPhishing ? "phish" : "legit");
+    if (correct) correctCount++;
+    if (s.isPhishing && (r.submittedCreds || r.judged === "legit")) fellForPhish++;
+  });
+
+  document.getElementById("stats-area").innerHTML = `
+    <div class="results-summary">
+      <div class="stat-card safe">
+        <div class="stat-num">${correctCount}/${judged.length}</div>
+        <div class="stat-label">Correctly identified</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-num">${fellForPhish}/${totalPhish}</div>
+        <div class="stat-label">Phishing emails you fell for</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${judged.length}/${scenarios.length}</div>
+        <div class="stat-label">Emails reviewed</div>
+      </div>
+    </div>
+  `;
+
+  const list = document.getElementById("results-list");
+  list.innerHTML = "";
+  scenarios.forEach((s) => {
+    const r = getRecord(progress, s.id);
+    if (r.judged === null) return;
+    const correct = r.judged === (s.isPhishing ? "phish" : "legit");
+    const row = document.createElement("div");
+    row.className = "result-row";
+    row.innerHTML = `
+      <div class="result-row-top">
+        <span class="result-row-subject">${s.subject}</span>
+        <span class="verdict-badge ${correct ? "correct" : "incorrect"}">${correct ? "Correct" : "Missed"}</span>
+      </div>
+      <div class="result-row-explain">${s.explanation}</div>
+    `;
+    row.style.cursor = "pointer";
+    row.addEventListener("click", () => { window.location.href = `email.html?id=${s.id}`; });
+    list.appendChild(row);
+  });
+}
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  if (confirm("Reset all progress? This clears your results in this browser.")) {
+    resetProgress();
+    render();
+  }
+});
+
+render();
+</script>
+
+</body>
+</html>
